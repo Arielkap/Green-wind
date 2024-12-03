@@ -1,13 +1,7 @@
-import React from 'react';
-import WindForecast from './components/WindForecast';
-import './styles/WindForecast.css';
+import WindForecast from './components/WindForecast'
 
 function App() {
-  return (
-    <div className="app">
-      <WindForecast />
-    </div>
-  );
+  return <WindForecast />
 }
 
-export default App; 
+export default App

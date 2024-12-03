@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import '../styles/WindForecast.css';
 
 interface DayForecast {
   day: string;
@@ -187,6 +188,7 @@ const WindForecast: React.FC = () => {
   return (
     <div className="wind-forecast">
       <div className="glass-container">
+        <h1 className="main-title">Wind Forecast Pro</h1>
         <div className="current-time">
           {formatDateTime(currentTime)}
         </div>
@@ -263,6 +265,12 @@ const WindForecast: React.FC = () => {
             </div>
           </>
         )}
+
+        <div className="author-info">
+          <p>Created with ❤️ by Ariel Kapitkowski</p>
+          <p>Version 1.0.0 | &copy; 2024</p>
+          <a href="https://github.com/arielkapitkowski" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
       </div>
     </div>
   );
