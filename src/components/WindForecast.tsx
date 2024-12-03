@@ -27,10 +27,18 @@ const API_KEY = 'YS4MB558RYJKZKKMHP4K5N9JL';
 const WIND_THRESHOLD = 13.1; // m/s
 const MEDIUM_WIND_THRESHOLD = 10.5; // m/s
 
+const LoadingSpinner = () => (
+  <div className="loading">
+    <div className="loading-spinner"></div>
+    <div className="loading-text">Loading weather data...</div>
+  </div>
+);
+
 const WindForecast: React.FC = () => {
   console.log('WindForecast component rendering')
   const [windData, setWindData] = useState<WindData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [forceLoading, setForceLoading] = useState(true);
   const [location, setLocation] = useState(() => {
     const savedLocation = localStorage.getItem('lastLocation');
     return savedLocation || 'London';
@@ -47,6 +55,14 @@ const WindForecast: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const loadingTimer = setTimeout(() => {
+      setForceLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(loadingTimer);
   }, []);
 
   const formatDateTime = (date: Date) => {
@@ -79,6 +95,7 @@ const WindForecast: React.FC = () => {
 
   const fetchWeatherData = async (loc: string) => {
     setLoading(true);
+    setForceLoading(true);
     try {
       const response = await fetch(
         `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${loc}?unitGroup=metric&key=${API_KEY}&contentType=json`
@@ -105,10 +122,14 @@ const WindForecast: React.FC = () => {
       };
 
       setWindData(formattedData);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     } catch (error) {
       console.error('Error fetching weather data:', error);
-    } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     }
   };
 
@@ -184,7 +205,7 @@ const WindForecast: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="loading">Loading...</div>;
+  if (loading || forceLoading) return <LoadingSpinner />;
 
   return (
     <div className="wind-forecast">
