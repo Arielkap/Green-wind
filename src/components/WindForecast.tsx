@@ -430,7 +430,7 @@ const WindForecast: React.FC = () => {
         <div className="author-info">
           <p>Created with ❤️ by Ariel Kapitkowski</p>
           <p>Version 1.0.0 | &copy; 2024</p>
-          <a href="https://github.com/arielkapitkowski" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://github.com/Arielkap/Green-wind" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </div>
     </div>
