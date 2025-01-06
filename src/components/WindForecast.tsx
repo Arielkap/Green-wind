@@ -35,12 +35,25 @@ interface LocationSuggestion {
   lon: number;
 }
 
-const API_KEY = 'YS4MB558RYJKZKKMHP4K5N9JL';
+const API_KEY = import.meta.env.VITE_API_KEY;
 const WIND_THRESHOLD = 13.1;
 const MEDIUM_WIND_THRESHOLD = 10.5;
 
-const kmhToMs = (kmh: number): number => {
-  return kmh / 3.6;
+const kmhToMs = (kmh: number): number => kmh / 3.6;
+const msToKmh = (ms: number): number => ms * 3.6;
+const msToMph = (ms: number): number => ms * 2.23694;
+
+type SpeedUnit = 'm/s' | 'km/h' | 'mph';
+
+const convertSpeed = (speed: number, unit: SpeedUnit): number => {
+  switch (unit) {
+    case 'm/s':
+      return speed;
+    case 'km/h':
+      return msToKmh(speed);
+    case 'mph':
+      return msToMph(speed);
+  }
 };
 
 const LoadingSpinner = () => (
@@ -78,6 +91,7 @@ const WindForecast: React.FC = () => {
   const [windData, setWindData] = useState<WindData | null>(null);
   const [loading, setLoading] = useState(true);
   const [forceLoading, setForceLoading] = useState(true);
+  const [speedUnit, setSpeedUnit] = useState<SpeedUnit>('m/s');
   const [searchQuery, setSearchQuery] = useState(() => {
     return localStorage.getItem('lastLocation') || 'London, UK';
   });
@@ -359,36 +373,56 @@ const WindForecast: React.FC = () => {
             <p className="current-time">{windData.timestamp}</p>
 
             <h3 className="section-title">Current Wind Speed</h3>
+            <div className="unit-selector">
+              <button 
+                className={`unit-button ${speedUnit === 'm/s' ? 'active' : ''}`}
+                onClick={() => setSpeedUnit('m/s')}
+              >
+                m/s
+              </button>
+              <button 
+                className={`unit-button ${speedUnit === 'km/h' ? 'active' : ''}`}
+                onClick={() => setSpeedUnit('km/h')}
+              >
+                km/h
+              </button>
+              <button 
+                className={`unit-button ${speedUnit === 'mph' ? 'active' : ''}`}
+                onClick={() => setSpeedUnit('mph')}
+              >
+                mph
+              </button>
+            </div>
             <div className="wind-data">
               <div className="data-card">
                 <div className="wind-speeds-grid">
                   <div className="wind-speed-item">
                     <span className="label">Ground</span>
                     <span className={`value ${getWindClass(windData.currentSpeed)}`}>
-                      {windData.currentSpeed.toFixed(1)}
+                      {convertSpeed(windData.currentSpeed, speedUnit).toFixed(1)}
                     </span>
-                    <span className="unit">m/s</span>
+                    <span className="unit">{speedUnit}</span>
                   </div>
                   <div className="wind-speed-item">
                     <span className="label">Ground Gusts</span>
                     <span className={`value ${getWindClass(windData.gustSpeed)}`}>
-                      {windData.gustSpeed.toFixed(1)}
+                      {convertSpeed(windData.gustSpeed, speedUnit).toFixed(1)}
                     </span>
-                    <span className="unit">m/s</span>
+                    <span className="unit">{speedUnit}</span>
                   </div>
                   <div className="wind-speed-item">
                     <span className="label">120m Gusts</span>
                     <span className={`value ${getWindClass(windData.gust120m)}`}>
-                      {windData.gust120m.toFixed(1)}
+                      {convertSpeed(windData.gust120m, speedUnit).toFixed(1)}
                     </span>
-                    <span className="unit">m/s</span>
+                    <span className="unit">{speedUnit}</span>
                   </div>
                   <div className="wind-speed-item">
                     <span className="label">160m Gusts</span>
                     <span className={`value ${getWindClass(windData.gust160m)}`}>
-                      {windData.gust160m.toFixed(1)}
+                      {convertSpeed(windData.gust160m, speedUnit).toFixed(1)}
                     </span>
-                    <span className="unit">m/s</span>
+                    <span className="unit">{speedUnit}</span>
                   </div>
                 </div>
               </div>
@@ -409,16 +443,16 @@ const WindForecast: React.FC = () => {
                     <span className="weather-icon" title={day.conditions}>{day.icon}</span>
                     <span className="temp">{day.temperature.toFixed(1)}°C</span>
                     <div className={`wind ${getWindClass(day.windSpeed)}`}>
-                      <span>Ground: {day.windSpeed.toFixed(1)} m/s</span>
+                      <span>Ground: {convertSpeed(day.windSpeed, speedUnit).toFixed(1)} {speedUnit}</span>
                     </div>
                     <div className={`wind ${getWindClass(day.windGust)}`}>
-                      <span>Ground Gusts: {day.windGust.toFixed(1)} m/s</span>
+                      <span>Ground Gusts: {convertSpeed(day.windGust, speedUnit).toFixed(1)} {speedUnit}</span>
                     </div>
                     <div className={`wind ${getWindClass(day.gust120m)}`}>
-                      <span>120m Gusts: {day.gust120m.toFixed(1)} m/s</span>
+                      <span>120m Gusts: {convertSpeed(day.gust120m, speedUnit).toFixed(1)} {speedUnit}</span>
                     </div>
                     <div className={`wind ${getWindClass(day.gust160m)}`}>
-                      <span>160m Gusts: {day.gust160m.toFixed(1)} m/s</span>
+                      <span>160m Gusts: {convertSpeed(day.gust160m, speedUnit).toFixed(1)} {speedUnit}</span>
                     </div>
                   </div>
                 </div>
@@ -437,4 +471,4 @@ const WindForecast: React.FC = () => {
   );
 };
 
-export default WindForecast; 
+export default WindForecast;
