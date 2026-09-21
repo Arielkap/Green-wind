@@ -1,48 +1,44 @@
-# Green Wind - Wind Measurement App
+# 🌀 WindPro • Pogoda & Profil Wiatru Huba i Dźwigu
 
-## Overview
-Green Wind is a specialized application designed for wind turbine businesses to measure and analyze wind conditions at different altitudes. The app provides real-time wind data visualization and analysis for optimal turbine placement and operation.
+Nowoczesna aplikacja webowa w stylu **Apple iOS 18 (Dark Glassmorphism)** zaprojektowana specjalnie dla **techników turbin wiatrowych, inżynierów O&M oraz operatorów żurawi/dźwigów** pracujących na farmach wiatrowych (onshore & offshore).
 
-## Key Features
-- Wind speed measurement at:
-  - Ground level
-  - 120 meters altitude
-  - 160 meters altitude
-- Real-time wind data visualization
-- Historical data analysis
-- Customizable measurement intervals
-- Responsive design for mobile and desktop
+Wykorzystuje modele meteorologiczne o wysokiej rozdzielczości **Open-Meteo AGL & ECMWF** oraz automatyczną geolokalizację kaskadową (Cache ➔ IP ➔ Precyzyjny GPS).
 
-## Installation
-1. Clone the repository:
-```bash
-git clone https://github.com/Arielkap/Green-wind.git
-```
-2. Install dependencies:
-```bash
-cd Green-wind
-npm install
-```
-3. Start the development server:
-```bash
-npm run dev
-```
+---
 
-## Usage
-1. Select your measurement altitude (Ground, 120m, 160m)
-2. View real-time wind data
-3. Analyze historical trends
-4. Export data for reporting
+## ⚡ Kluczowe Funkcje dla Sektora Energetyki Wiatrowej & Dźwigów
 
-## Technology Stack
-- React.js
-- TypeScript
-- Tailwind CSS
-- Chart.js
-- OpenWeather API
+### 1. 🏗️ Wiatr na Wysokościach Huba i Dźwigu
+* **160m (Szczyt wysięgnika dźwigu / Boom Tip):** Wiatr i porywy w strefie najwyższego punktu wysięgnika żurawia i rotora.
+* **140m (Główny Hub / Hak dźwigu):** Główny punkt referencyjny prędkości wiatru na wysokości gondoli i pracy haka.
+* **120m (Niższy Hub / Dźwig):** Odczyt dla niższych wież wiatrowych i sekcji montażowych.
+* **10m (Baza dźwigu / Grunt):** Wiatr przygruntowy na stanowisku żurawia.
+* **Gradient Wiatru (Wind Shear $\Delta v$):** Różnica prędkości między bazą a hubem (140m) – kluczowy wskaźnik kołysania zawieszonego ładunku.
 
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+### 2. 🚨 Wskaźnik Bezpieczeństwa Operacji Dźwigowych (Crane Lift Safety)
+* 🟢 **WARUNKI W NORMIE (LIFTING DOZWOLONY):** Średnia 10-minutowa na hubie/haku (140m) < 10.5 m/s i porywy < 15.5 m/s.
+* 🟡 **OSTRZEŻENIE / WARUNKI KRAŃCOWE:** Wiatr zbliża się do limitów (10.5 – 12.0 m/s avg 10-min lub 15.5 – 18.0 m/s w porywach).
+* 🔴 **CRANE STOP / ZAKAZ PODNOSZENIA:** Średnia 10-min > 12.0 m/s LUB porywy > 18.0 m/s – natychmiastowe wstrzymanie prac dźwigowych.
 
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+### 3. ⏱️ 24-godzinny Timeline & 7-Dniowa Prognoza
+* Wybór wysokości (**Hub 140m**, **Dźwig 160m**, **Hub 120m**, **Baza 10m**) automatycznie przelicza zarówno prognozę godzinową na 24h, jak i pełną prognozę na 7 dni.
+
+### 5. 🔄 Przełącznik Jednostek (m/s ⟷ km/h)
+* Jeden klik na górnym pasku przełącza całą telemetrię aplikacji pomiędzy standardem inżynierskim **m/s** a **km/h**.
+
+### 6. 📱 Apple iOS 18 Design Language
+* Matowe szkło (*Frosted Glassmorphism*), subtelne obramowania, typografia SF Pro / Plus Jakarta Sans.
+* Zoptymalizowane pod kątem ekranów smartfonów (iPhone / Android) oraz tabletów i komputerów w dyspozytorni.
+
+---
+
+## 🚀 Uruchomienie lokalne
+
+1. Otwórz terminal w folderze projektu:
+   ```bash
+   python3 run.py
+   ```
+2. Skrypt uruchomi lokalny serwer i otworzy aplikację w przeglądarce pod adresem `http://localhost:8000`.
+
+---
+*Bezpiecznych podnoszeń i stabilnych wiatrów na wysokości gondoli! 🌀*

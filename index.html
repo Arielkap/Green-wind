@@ -1,13 +1,304 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wind Turbine Pro</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WindPro">
+    <meta name="theme-color" content="#080b11">
+    <title>WindPro • Wiatr na Wysokościach & Pogoda</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Apple & Google Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-frame" id="app-frame">
+        <div class="app-content">
+            
+            <!-- Apple-Style Top Navigation / Search & Unit Switcher -->
+            <header class="app-header">
+                <div class="top-controls">
+                    <div class="search-wrapper">
+                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input type="text" id="search-input" placeholder="Wyszukaj farmę / miasto..." autocomplete="off">
+                        <button id="search-button" class="btn-clean" title="Szukaj">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
+                    
+                    <button id="gps-button" class="btn-gps" title="Moja Lokalizacja GPS">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                    </button>
+                    
+                    <!-- Unit Selector Pill (m/s vs km/h) -->
+                    <div class="unit-toggle" id="unit-toggle" title="Przełącz jednostki prędkości wiatru">
+                        <button class="unit-btn active" data-unit="ms">m/s</button>
+                        <button class="unit-btn" data-unit="kmh">km/h</button>
+                    </div>
+                </div>
+
+                <!-- Location Header Info -->
+                <div class="location-hero">
+                    <div class="location-title-row">
+                        <h1 id="location-name">Wykrywanie pozycji...</h1>
+                        <span class="live-pill">LIVE</span>
+                    </div>
+                    <p class="location-sub" id="location-coords">Pobieranie koordynatów GPS & profilu wysokościowego...</p>
+                    <p class="current-date" id="current-date">--</p>
+                </div>
+            </header>
+
+            <!-- CRANE LIFT & TURBINE SAFETY STATUS BANNER (Apple Pro Widget) -->
+            <section class="safety-banner glass-card" id="safety-banner">
+                <div class="safety-icon-box" id="safety-icon-box">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4M12 17h.01M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z"/></svg>
+                </div>
+                <div class="safety-content">
+                    <div class="safety-title-row">
+                        <span class="safety-tag">STATUS OPERACJI DŹWIGOWYCH & TURBIN</span>
+                        <h3 id="safety-status-title">Analiza bezpieczeństwa pracy...</h3>
+                    </div>
+                    <p id="safety-status-desc">Sprawdzanie prędkości wiatru na wysokości gondoli (140m) pod kątem limitów dźwigowych.</p>
+                </div>
+            </section>
+
+            <!-- MAIN HERO WEATHER CARD (Apple Weather Style) -->
+            <main class="weather-hero glass-card">
+                <div class="hero-left">
+                    <div class="temp-display">
+                        <span id="current-temp">--</span><span class="degree-mark">°</span>
+                    </div>
+                    <div class="weather-condition" id="weather-desc">Pobieranie danych...</div>
+                    <div class="temp-range-sub">
+                        <span>Odczuwalna: <strong id="feels-like-temp">--°</strong></span>
+                        <span class="range-separator">•</span>
+                        <span>Maks: <strong id="today-temp-max">--°</strong></span>
+                        <span>Min: <strong id="today-temp-min">--°</strong></span>
+                    </div>
+                </div>
+                <div class="hero-right">
+                    <div id="weather-icon-container" class="weather-icon-box">
+                        <svg class="weather-svg-main" viewBox="0 0 64 64" width="88" height="88">
+                            <circle cx="32" cy="32" r="16" fill="#FDB813" />
+                        </svg>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ALTITUDE WIND PROFILE (HUB & CRANE HEIGHTS: 10m, 120m, 140m, 160m) -->
+            <section class="glass-card altitude-card">
+                <div class="card-header">
+                    <div class="header-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        <h2>Wiatr na Wysokości Huba & Dźwigu</h2>
+                    </div>
+                    <span class="badge-accent">Średnia 10-minutowa</span>
+                </div>
+
+                <!-- Altitude Ladder: Hub & Crane Heights -->
+                <div class="altitude-ladder" id="altitude-ladder">
+                    
+                    <!-- 160m Tip / Crane Boom -->
+                    <div class="altitude-row" data-level="160">
+                        <div class="alt-level-tag">
+                            <span class="alt-meters">160 m</span>
+                            <span class="alt-desc">Szczyt wysięgnika dźwigu (Boom)</span>
+                        </div>
+                        <div class="alt-meter-bar-wrapper">
+                            <div class="alt-meter-bar" id="bar-160" style="width: 0%"></div>
+                        </div>
+                        <div class="alt-stats">
+                            <div class="alt-speed-container">
+                                <span class="alt-speed" id="wind-160-speed">--</span>
+                                <span class="alt-unit">m/s</span>
+                            </div>
+                            <div class="alt-meta">
+                                <span class="alt-dir-arrow" id="arrow-160">↑</span>
+                                <span class="alt-dir-deg" id="dir-160">--°</span>
+                                <span class="alt-gust-badge" id="gust-160">Porywy: --</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 140m Standard Hub / Crane Hook (Główny punkt referencyjny) -->
+                    <div class="altitude-row highlight-hub active-selection" data-level="140">
+                        <div class="alt-level-tag">
+                            <div class="hub-marker-pill">HUB 140m</div>
+                            <span class="alt-desc">Główny Hub / Hak Dźwigu</span>
+                        </div>
+                        <div class="alt-meter-bar-wrapper">
+                            <div class="alt-meter-bar hub-bar" id="bar-140" style="width: 0%"></div>
+                        </div>
+                        <div class="alt-stats">
+                            <div class="alt-speed-container">
+                                <span class="alt-speed hub-speed-val" id="wind-140-speed">--</span>
+                                <span class="alt-unit">m/s</span>
+                            </div>
+                            <div class="alt-meta">
+                                <span class="alt-dir-arrow hub-arrow" id="arrow-140">↑</span>
+                                <span class="alt-dir-deg" id="dir-140">--°</span>
+                                <span class="alt-gust-badge hub-gust-badge" id="gust-140">Porywy: --</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 120m Lower Hub / Crane Height -->
+                    <div class="altitude-row" data-level="120">
+                        <div class="alt-level-tag">
+                            <span class="alt-meters">120 m</span>
+                            <span class="alt-desc">Niższy Hub / Dźwig (120m)</span>
+                        </div>
+                        <div class="alt-meter-bar-wrapper">
+                            <div class="alt-meter-bar" id="bar-120" style="width: 0%"></div>
+                        </div>
+                        <div class="alt-stats">
+                            <div class="alt-speed-container">
+                                <span class="alt-speed" id="wind-120-speed">--</span>
+                                <span class="alt-unit">m/s</span>
+                            </div>
+                            <div class="alt-meta">
+                                <span class="alt-dir-arrow" id="arrow-120">↑</span>
+                                <span class="alt-dir-deg" id="dir-120">--°</span>
+                                <span class="alt-gust-badge" id="gust-120">Porywy: --</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 10m Ground / Crane Base -->
+                    <div class="altitude-row" data-level="10">
+                        <div class="alt-level-tag">
+                            <span class="alt-meters">10 m</span>
+                            <span class="alt-desc">Baza dźwigu / Grunt</span>
+                        </div>
+                        <div class="alt-meter-bar-wrapper">
+                            <div class="alt-meter-bar ground-bar" id="bar-10" style="width: 0%"></div>
+                        </div>
+                        <div class="alt-stats">
+                            <div class="alt-speed-container">
+                                <span class="alt-speed" id="wind-10-speed">--</span>
+                                <span class="alt-unit">m/s</span>
+                            </div>
+                            <div class="alt-meta">
+                                <span class="alt-dir-arrow" id="arrow-10">↑</span>
+                                <span class="alt-dir-deg" id="dir-10">--°</span>
+                                <span class="alt-gust-badge" id="gust-10">Porywy: --</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wind Shear / Delta Telemetry Footer -->
+                <div class="shear-footer">
+                    <div class="shear-metric">
+                        <span class="shear-label">Gradient Wiatru (Baza ➔ Hub 140m)</span>
+                        <span class="shear-val" id="wind-shear-val">+0.0 m/s</span>
+                    </div>
+                    <div class="shear-metric">
+                        <span class="shear-label">Skala Beauforta na Hubie 140m</span>
+                        <span class="shear-val" id="beaufort-hub-val">--</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HOURLY PRO FORECAST (24H INTERACTIVE ALTITUDE TIMELINE) -->
+            <section class="glass-card hourly-section">
+                <div class="card-header">
+                    <div class="header-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <h2>Prognoza Godzinowa na Wysokości (24H)</h2>
+                    </div>
+                </div>
+
+                <!-- Altitude Timeline Switcher: Hub & Crane Heights -->
+                <div class="hourly-level-tabs" id="hourly-level-tabs">
+                    <button class="level-tab active" data-level="140">Hub 140m (Hak)</button>
+                    <button class="level-tab" data-level="160">Dźwig 160m (Szczyt)</button>
+                    <button class="level-tab" data-level="120">Hub 120m</button>
+                    <button class="level-tab" data-level="10">Baza 10m (Grunt)</button>
+                </div>
+
+                <div class="hourly-scroll-container" id="hourly-scroll">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </section>
+
+            <!-- 7-DAY PRO WEATHER & WIND FORECAST (Apple Style) -->
+            <section class="glass-card daily-section">
+                <div class="card-header">
+                    <div class="header-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <h2>Prognoza na 7 Dni</h2>
+                    </div>
+                    <span class="badge-accent" id="daily-level-badge">Wiatr na 140m (Gondola)</span>
+                </div>
+
+                <div class="daily-forecast-list" id="daily-forecast-list">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </section>
+
+            <!-- ATMOSPHERIC METRICS (Apple 2x2 Widgets) -->
+            <section class="grid-metrics">
+                <div class="metric-card glass-card">
+                    <div class="m-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>
+                        <span>OPADY & DESZCZ</span>
+                    </div>
+                    <div class="m-main">
+                        <span class="m-val" id="metric-rain-sum">0.0</span><span class="m-unit">mm</span>
+                    </div>
+                    <p class="m-sub" id="metric-rain-prob">Szansa opadów: --%</p>
+                </div>
+
+                <div class="metric-card glass-card">
+                    <div class="m-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 2M12 12V6M12 12h6"/></svg>
+                        <span>CIŚNIENIE (AERODYNAMIKA)</span>
+                    </div>
+                    <div class="m-main">
+                        <span class="m-val" id="metric-pressure">--</span><span class="m-unit">hPa</span>
+                    </div>
+                    <p class="m-sub" id="metric-air-density">Gęstość pow.: ~1.22 kg/m³</p>
+                </div>
+
+                <div class="metric-card glass-card">
+                    <div class="m-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                        <span>INDEKS UV & SŁOŃCE</span>
+                    </div>
+                    <div class="m-main">
+                        <span class="m-val" id="metric-uv">--</span>
+                    </div>
+                    <p class="m-sub" id="metric-uv-desc">Ochrona przeciwsłoneczna</p>
+                </div>
+
+                <div class="metric-card glass-card">
+                    <div class="m-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/></svg>
+                        <span>WILGOTNOŚĆ & MGŁA</span>
+                    </div>
+                    <div class="m-main">
+                        <span class="m-val" id="metric-humidity">--</span><span class="m-unit">%</span>
+                    </div>
+                    <p class="m-sub" id="metric-fog-risk">Ryzyko oblodzenia: Niskie</p>
+                </div>
+            </section>
+
+            <!-- App Footer -->
+            <footer class="app-footer">
+                <p><strong>WindPro</strong> • Pogodynka wiatrowa dla farm wiatrowych & dźwigów</p>
+                <p class="api-credit">Zasilane precyzyjnymi modelami Open-Meteo AGL & ECMWF</p>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- Script loading -->
+    <script src="app.js"></script>
+</body>
 </html>
