@@ -12,7 +12,9 @@ Tailored for Crane Operators & Heavy Lifting:
 import json
 import os
 import sys
+import time
 import urllib.request
+import urllib.error
 from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,10 +23,20 @@ OUTPUT_FILE = os.path.join(BASE_DIR, "weather_offshore.json")
 DEFAULT_LAT = 57.15
 DEFAULT_LON = -2.10
 
-def fetch_json(url):
+def fetch_json(url, max_retries=3):
     req = urllib.request.Request(url, headers={"User-Agent": "Ariel-Crane-Wind-Monitor/2.1"})
-    with urllib.request.urlopen(req, timeout=12) as response:
-        return json.loads(response.read().decode("utf-8"))
+    last_err = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=12) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as e:
+            last_err = e
+            print(f"[WARN] Próba {attempt}/{max_retries} nieudana ({e}). Czekam...")
+            if attempt < max_retries:
+                time.sleep(attempt * 2)
+    print(f"[ERROR] Wszystkie {max_retries} próby pobrania pogody nie powiodły się: {last_err}")
+    return None
 
 def get_wind_telemetry(lat=DEFAULT_LAT, lon=DEFAULT_LON):
     url = (
@@ -50,6 +62,13 @@ def evaluate_crane_limits(v_avg, v_gust):
 def run():
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 🏗️ Pobieram wiatr onshore i prognozę 5-dniową...")
     data = get_wind_telemetry()
+    if not data:
+        if os.path.exists(OUTPUT_FILE):
+            print("⚠️ [FALLBACK] Zachowuję ostatni poprawny stan w pliku cache.")
+            return
+        else:
+            print("🚨 Brak danych pogodowych i brak pliku cache.")
+            return
     curr = data.get("current", {})
     hourly = data.get("hourly", {})
     daily = data.get("daily", {})
